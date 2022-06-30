@@ -27,6 +27,10 @@ impl Memory {
             | (self.data[index + 2] as u32) << 16
             | (self.data[index + 3] as u32) << 24
     }
+
+    pub fn initialize(&mut self, data: Vec<u8>) {
+        self.data.splice(..data.len(), data);
+    }
 }
 
 #[cfg(test)]

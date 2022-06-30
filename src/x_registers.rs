@@ -3,9 +3,11 @@ pub struct XRegisters {
     data: [u32; 32],
 }
 
+const REGISTERS_COUNT: u32 = 32;
+
 impl XRegisters {
     pub fn new() -> Self {
-        let data = [0; 32];
+        let data = [0; REGISTERS_COUNT as usize];
 
         XRegisters { data }
     }
