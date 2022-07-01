@@ -8,7 +8,7 @@ pub enum Instruction {
     Or { rd: u32, rs1: u32, rs2: u32 },
     And { rd: u32, rs1: u32, rs2: u32 },
     Addi { rd: u32, rs1: u32, imm: u32 },
-    Silli { rd: u32, rs1: u32, imm: u32 },
+    Slli { rd: u32, rs1: u32, imm: u32 },
     Beq { rs1: u32, rs2: u32, imm: u32 },
     Lw { rd: u32, rs1: u32, imm: u32 },
     Sw { rs1: u32, rs2: u32, imm: u32 },
@@ -24,6 +24,7 @@ impl Instruction {
         let funct7 = (inst & 0xfe000000) >> 25;
 
         match opcode {
+            // R-Type
             0b0110011 => match funct3 {
                 0x0 => match funct7 {
                     0x00 => Ok(Add { rd, rs1, rs2 }),
@@ -34,15 +35,17 @@ impl Instruction {
                 0x7 => Ok(And { rd, rs1, rs2 }),
                 _ => Err(Error::IllegalInstruction(inst)),
             },
+            // I-Type
             0b0010011 => {
                 let imm = (inst & 0xfff00000) >> 20;
 
                 match funct3 {
                     0x0 => Ok(Addi { rd, rs1, imm }),
-                    0x1 => Ok(Silli { rd, rs1, imm }),
+                    0x1 => Ok(Slli { rd, rs1, imm }),
                     _ => Err(Error::IllegalInstruction(inst)),
                 }
             }
+            // B-Type
             0b1100011 => {
                 let imm = ((inst & 0x80000000) >> 19)
                     | ((inst & 0x00000080) << 4)

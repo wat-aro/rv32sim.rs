@@ -47,6 +47,75 @@ impl Cpu {
     }
 
     pub fn execute(&mut self, inst: Instruction) -> Result<(), Error> {
-        Ok(())
+        match inst {
+            Instruction::Add { rd, rs1, rs2 } => {
+                let value = self
+                    .x_registers
+                    .read(rs1)
+                    .wrapping_add(self.x_registers.read(rs2));
+                self.x_registers.write(rd, value);
+                self.pc += 4;
+                Ok(())
+            }
+            Instruction::Sub { rd, rs1, rs2 } => {
+                let value = self.x_registers.read(rs1) - self.x_registers.read(rs2);
+                self.x_registers.write(rd, value);
+                self.pc += 4;
+                Ok(())
+            }
+            Instruction::Or { rd, rs1, rs2 } => {
+                let value = self.x_registers.read(rs1) | self.x_registers.read(rs2);
+                self.x_registers.write(rd, value);
+                self.pc += 4;
+                Ok(())
+            }
+            Instruction::And { rd, rs1, rs2 } => {
+                let value = self.x_registers.read(rs1) & self.x_registers.read(rs2);
+                self.x_registers.write(rd, value);
+                self.pc += 4;
+                Ok(())
+            }
+            Instruction::Addi { rd, rs1, imm } => {
+                let num = match (imm & 0x80) == 0 {
+                    true => imm,
+                    false => !(imm & 0x7f) + 1,
+                };
+                let value = self.x_registers.read(rs1).wrapping_add(num);
+                self.x_registers.write(rd, value);
+                Ok(())
+            }
+            Instruction::Slli { rd, rs1, imm } => {
+                let value = self.x_registers.read(rs1) << (self.x_registers.read(imm) & 0b11111);
+                self.x_registers.write(rd, value);
+                self.pc += 4;
+                Ok(())
+            }
+            Instruction::Beq { rs1, rs2, imm } => {
+                let num = match (imm & 0xc0) == 0 {
+                    true => imm,
+                    false => !(imm & 0xbf) + 1,
+                };
+
+                if self.x_registers.read(rs1) == self.x_registers.read(rs2) {
+                    self.pc = self.pc.wrapping_add(num);
+                } else {
+                    self.pc += 4;
+                }
+                Ok(())
+            }
+            Instruction::Lw { rd, rs1, imm } => {
+                let addr = self.x_registers.read(rs1) + imm;
+                let value = self.memory.read(addr);
+                self.x_registers.write(rd, value);
+                self.pc += 4;
+                Ok(())
+            }
+            Instruction::Sw { rs1, rs2, imm } => {
+                let addr = self.x_registers.read(rs1) + imm;
+                self.memory.write(addr, rs2);
+                self.pc += 4;
+                Ok(())
+            }
+        }
     }
 }
