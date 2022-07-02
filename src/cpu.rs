@@ -58,7 +58,10 @@ impl Cpu {
                 Ok(())
             }
             Instruction::Sub { rd, rs1, rs2 } => {
-                let value = self.x_registers.read(rs1) - self.x_registers.read(rs2);
+                let value = self
+                    .x_registers
+                    .read(rs1)
+                    .wrapping_sub(self.x_registers.read(rs2));
                 self.x_registers.write(rd, value);
                 self.pc += 4;
                 Ok(())
