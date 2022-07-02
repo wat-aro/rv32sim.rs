@@ -34,13 +34,19 @@ impl Cpu {
     }
 
     pub fn run(&mut self) -> Result<Status, Error> {
-        if self.nop_count > 4 {
-            return Ok(Status::Finished);
-        }
         let raw_inst = self.fetch();
 
         let inst = Instruction::decode(raw_inst)?;
 
+        if let Instruction::Nop = inst {
+            self.nop_count += 1;
+        } else {
+            self.nop_count = 0;
+        }
+
+        if self.nop_count >= 5 {
+            return Ok(Status::Finished);
+        }
         self.execute(inst)?;
 
         Ok(Status::Processing)
@@ -123,7 +129,6 @@ impl Cpu {
                 Ok(())
             }
             Instruction::Nop => {
-                self.nop_count += 1;
                 self.pc += 4;
                 Ok(())
             }
