@@ -3,9 +3,9 @@ use crate::instruction::Instruction;
 use crate::memory::Memory;
 use crate::x_registers::XRegisters;
 
-struct Cpu {
-    pc: u32,
-    x_registers: XRegisters,
+pub struct Cpu {
+    pub pc: u32,
+    pub x_registers: XRegisters,
     memory: Memory,
     nop_count: u8,
 }
@@ -37,11 +37,11 @@ impl Cpu {
         if self.nop_count > 4 {
             return Ok(Status::Finished);
         }
-
         let raw_inst = self.fetch();
+
         let inst = Instruction::decode(raw_inst)?;
 
-        self.execute(inst);
+        self.execute(inst)?;
 
         Ok(Status::Processing)
     }
@@ -86,6 +86,7 @@ impl Cpu {
                 };
                 let value = self.x_registers.read(rs1).wrapping_add(num);
                 self.x_registers.write(rd, value);
+                self.pc += 4;
                 Ok(())
             }
             Instruction::Slli { rd, rs1, imm } => {
