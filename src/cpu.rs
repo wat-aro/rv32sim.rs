@@ -121,6 +121,11 @@ impl Cpu {
                 self.pc += 4;
                 Ok(())
             }
+            Instruction::Nop => {
+                self.nop_count += 1;
+                self.pc += 4;
+                Ok(())
+            }
         }
     }
 }
