@@ -1,12 +1,14 @@
-use crate::error::Error;
 use crate::instruction::Instruction;
 use crate::memory::Memory;
+use crate::serial::{Serial, SERIAL_ADDRESS};
 use crate::x_registers::XRegisters;
+use anyhow::Result;
 
 pub struct Cpu {
     pub pc: u32,
     pub x_registers: XRegisters,
     memory: Memory,
+    serial: Serial,
     nop_count: u8,
 }
 
@@ -21,6 +23,7 @@ impl Cpu {
             pc: 0,
             x_registers: XRegisters::new(),
             memory: Memory::new(),
+            serial: Serial::new(),
             nop_count: 0,
         }
     }
@@ -33,7 +36,7 @@ impl Cpu {
         self.memory.read(self.pc)
     }
 
-    pub fn run(&mut self) -> Result<Status, Error> {
+    pub fn run(&mut self) -> Result<Status> {
         let raw_inst = self.fetch();
 
         let inst = Instruction::decode(raw_inst)?;
@@ -52,7 +55,7 @@ impl Cpu {
         Ok(Status::Processing)
     }
 
-    pub fn execute(&mut self, inst: Instruction) -> Result<(), Error> {
+    pub fn execute(&mut self, inst: Instruction) -> Result<()> {
         match inst {
             Instruction::Add { rd, rs1, rs2 } => {
                 let value = self
@@ -96,7 +99,7 @@ impl Cpu {
                 Ok(())
             }
             Instruction::Slli { rd, rs1, imm } => {
-                let value = self.x_registers.read(rs1) << (self.x_registers.read(imm) & 0b11111);
+                let value = self.x_registers.read(rs1) << (imm & 0b11111);
                 self.x_registers.write(rd, value);
                 self.pc += 4;
                 Ok(())
@@ -117,14 +120,23 @@ impl Cpu {
             }
             Instruction::Lw { rd, rs1, imm } => {
                 let addr = self.x_registers.read(rs1) + imm;
-                let value = self.memory.read(addr);
+                let value = if addr == SERIAL_ADDRESS {
+                    self.serial.read()?
+                } else {
+                    self.memory.read(addr)
+                };
                 self.x_registers.write(rd, value);
                 self.pc += 4;
                 Ok(())
             }
             Instruction::Sw { rs1, rs2, imm } => {
                 let addr = self.x_registers.read(rs1) + imm;
-                self.memory.write(addr, rs2);
+                let value = self.x_registers.read(rs2);
+                if addr == SERIAL_ADDRESS {
+                    self.serial.write(value)?;
+                } else {
+                    self.memory.write(addr, value);
+                }
                 self.pc += 4;
                 Ok(())
             }

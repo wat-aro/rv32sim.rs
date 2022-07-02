@@ -1,7 +1,5 @@
-use crate::{
-    cpu::{Cpu, Status},
-    error::Error,
-};
+use crate::cpu::{Cpu, Status};
+use anyhow::Result;
 
 pub struct Simulator {
     cpu: Cpu,
@@ -32,7 +30,7 @@ impl Simulator {
         println!("pc = 0x{0:x} ({0})", self.cpu.pc);
     }
 
-    pub fn start(&mut self) -> Result<(), Error> {
+    pub fn start(&mut self) -> Result<()> {
         loop {
             match self.cpu.run() {
                 Ok(status) => match status {
