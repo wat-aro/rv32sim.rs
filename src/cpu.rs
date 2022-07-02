@@ -79,9 +79,10 @@ impl Cpu {
                 Ok(())
             }
             Instruction::Addi { rd, rs1, imm } => {
+                // imm は 12bit の signed int なので 12bit 目が 0 なら正、1なら負
                 let num = match (imm & 0x80) == 0 {
                     true => imm,
-                    false => !(imm & 0x7f) + 1,
+                    false => !(imm & 0x7f) + 1, // 11bitまでのbitを取り出して符号反転する
                 };
                 let value = self.x_registers.read(rs1).wrapping_add(num);
                 self.x_registers.write(rd, value);
@@ -94,9 +95,10 @@ impl Cpu {
                 Ok(())
             }
             Instruction::Beq { rs1, rs2, imm } => {
+                // imm は 13bit の signed int なので 13bit 目が 0 なら正、1なら負
                 let num = match (imm & 0xc0) == 0 {
                     true => imm,
-                    false => !(imm & 0xbf) + 1,
+                    false => !(imm & 0xbf) + 1, // 12bitまでのbitを取り出して符号反転する
                 };
 
                 if self.x_registers.read(rs1) == self.x_registers.read(rs2) {
