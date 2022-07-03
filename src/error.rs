@@ -9,7 +9,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::IllegalInstruction(u) => {
-                write!(f, "Illegal Instruction: {}", u)
+                write!(f, "Illegal Instruction: {:x}", u)
             }
         }
     }
