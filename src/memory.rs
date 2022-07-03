@@ -52,4 +52,33 @@ mod tests {
         memory.write(addr, full_word);
         assert_eq!(memory.read(addr), full_word);
     }
+
+    #[test]
+    fn test_read() {
+        let mut memory = Memory::new();
+        memory.initialize(vec![0x93, 0x00, 0x01, 0x01, 0x94, 0x00, 0x01, 0x01]);
+        let addr = 0;
+        assert_eq!(0x01010093, memory.read(addr));
+
+        let addr = 4;
+        assert_eq!(0x01010094, memory.read(addr));
+
+        let addr = 8;
+        assert_eq!(0, memory.read(addr));
+    }
+
+    #[test]
+    fn test_set_data() {
+        let mut memory = Memory::new();
+        memory.initialize(vec![0x93, 0x00, 0x01, 0x01, 0x94, 0x00, 0x01, 0x01]);
+
+        assert_eq!(0x01010093, memory.read(0));
+        assert_eq!(0x01010094, memory.read(4));
+
+        memory.write(0, 0x01010095);
+        memory.write(4, 0x01010096);
+
+        assert_eq!(0x01010095, memory.read(0));
+        assert_eq!(0x01010096, memory.read(4));
+    }
 }
