@@ -91,7 +91,7 @@ impl Cpu {
                 // imm は 12bit の signed int なので 12bit 目が 0 なら正、1なら負
                 let num = match (imm & 0x80) == 0 {
                     true => imm,
-                    false => 0xfffff000 | imm, // 13bit目移行を 1 で埋める
+                    false => 0xfffff000 | imm, // 13bit目以降を 1 で埋める
                 };
                 let value = self.x_registers.read(rs1).wrapping_add(num);
                 self.x_registers.write(rd, value);
