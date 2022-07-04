@@ -10,7 +10,7 @@ fn main() -> Result<()> {
         .arg(
             Arg::new("FILE")
                 .required(true)
-                .help("Target movable type file location."),
+                .help("Target rom file location."),
         )
         .get_matches();
 
