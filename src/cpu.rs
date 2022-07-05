@@ -41,7 +41,13 @@ impl Cpu {
 
         let inst = Instruction::decode(raw_inst)?;
 
-        if let Instruction::Nop = inst {
+        // Addi { rd: 0, rs1: 0, imm: 0 } を NOP として扱う
+        if let Instruction::Addi {
+            rd: 0,
+            rs1: 0,
+            imm: 0,
+        } = inst
+        {
             self.nop_count += 1;
         } else {
             self.nop_count = 0;
@@ -137,10 +143,6 @@ impl Cpu {
                 } else {
                     self.memory.write(addr, value);
                 }
-                self.pc += 4;
-                Ok(())
-            }
-            Instruction::Nop => {
                 self.pc += 4;
                 Ok(())
             }

@@ -12,7 +12,6 @@ pub enum Instruction {
     Beq { rs1: u32, rs2: u32, imm: u32 },
     Lw { rd: u32, rs1: u32, imm: u32 },
     Sw { rs1: u32, rs2: u32, imm: u32 },
-    Nop,
 }
 
 impl Instruction {
@@ -41,13 +40,7 @@ impl Instruction {
                 let imm = (inst & 0xfff00000) >> 20;
 
                 match funct3 {
-                    0x0 => {
-                        if rd == 0 && rs1 == 0 && imm == 0 {
-                            Ok(Nop)
-                        } else {
-                            Ok(Addi { rd, rs1, imm })
-                        }
-                    }
+                    0x0 => Ok(Addi { rd, rs1, imm }),
                     0x1 => Ok(Slli { rd, rs1, imm }),
                     _ => Err(Error::IllegalInstruction(inst)),
                 }
@@ -138,12 +131,6 @@ mod tests {
             }),
             instruction
         );
-    }
-
-    #[test]
-    fn decode_nop() {
-        let instruction = Instruction::decode(0b000000000000_00000_000_00000_0010011);
-        assert_eq!(Ok(Nop), instruction);
     }
 
     #[test]
