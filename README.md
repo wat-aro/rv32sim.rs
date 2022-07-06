@@ -1,5 +1,7 @@
 # rv32sim.rs: RISC-V subset simulator inspired by [rv32sim](https://github.com/thata/rv32sim)
 
+![build](https://github.com/wat-aro/rv32sim.rs/actions/workflows/build.yml/badge.svg)
+
 ## Install
 
 ``` sh
